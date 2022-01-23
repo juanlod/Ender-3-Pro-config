@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#define CONFIG_EXAMPLES_DIR "Creality/Ender-3 Pro/CrealityV427"
+//#define CONFIG_EXAMPLES_DIR "Creality/Ender-3 Pro/CrealityV427"
 
 /**
  * Configuration.h
@@ -96,6 +96,11 @@
 
 // @section machine
 
+// Elija el nombre de boards.h que coincida con su configuración
+#ifndef MOTHERBOARD
+  #define MOTHERBOARD BOARD_CREALITY_V427
+#endif
+
 /**
  * Select the serial port on the board to use for communication with the host.
  * This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -113,7 +118,7 @@
  * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT_2 3
+//#define SERIAL_PORT_2 3
 
 
 
@@ -150,10 +155,7 @@
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
 
-// Elija el nombre de boards.h que coincida con su configuración
-#ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_CREALITY_V427
-#endif
+
 
 // Name displayed in the LCD "Ready" message and Info menu
 #define CUSTOM_MACHINE_NAME "Optimus Prime"
@@ -402,6 +404,11 @@
     //#define AUTO_POWER_COOLER_TEMP   26 // (°C) Turn on PSU if the cooler is over this temperature
     #define POWER_TIMEOUT              30 // (s) Turn off power if the machine is idle for this duration
     //#define POWER_OFF_DELAY          60 // (s) Delay of poweroff after M81 command. Useful to let fans run for extra time.
+  #endif
+    #if EITHER(AUTO_POWER_CONTROL, POWER_OFF_WAIT_FOR_COOLDOWN)
+    //#define AUTO_POWER_E_TEMP        50 // (°C) PSU on if any extruder is over this temperature
+    //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) PSU on if the chamber is over this temperature
+    //#define AUTO_POWER_COOLER_TEMP   26 // (°C) PSU on if the cooler is over this temperature
   #endif
 #endif
 
@@ -770,6 +777,7 @@
 //#define COREZX
 //#define COREZY
 //#define MARKFORGED_XY  // MarkForged. See https://reprap.org/forum/read.php?152,504042
+//#define MARKFORGED_YX
 
 // Enable for a belt style printer with endless "Z" motion
 //#define BELTPRINTER
@@ -874,9 +882,9 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-#define X_DRIVER_TYPE  TMC2209_STANDALONE
-#define Y_DRIVER_TYPE  TMC2209_STANDALONE
-#define Z_DRIVER_TYPE  TMC2209_STANDALONE
+#define X_DRIVER_TYPE  TMC2208_STANDALONE
+#define Y_DRIVER_TYPE  TMC2208_STANDALONE
+#define Z_DRIVER_TYPE  TMC2208_STANDALONE
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
@@ -885,7 +893,7 @@
 //#define I_DRIVER_TYPE  A4988
 //#define J_DRIVER_TYPE  A4988
 //#define K_DRIVER_TYPE  A4988
-#define E0_DRIVER_TYPE TMC2209_STANDALONE
+#define E0_DRIVER_TYPE TMC2208_STANDALONE
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
@@ -940,6 +948,9 @@
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
+// Original
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 93 }
+// Direct drive
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 398.087 }
 
 /**
@@ -1039,9 +1050,9 @@
 //
 
 /**
- * Enable this option for a probe connected to the Z-MIN pin.
- * The probe replaces the Z-MIN endstop and is used for Z homing.
- * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
+* Habilite esta opción para una sonda conectada al pin Z-MIN.
+ * La sonda reemplaza el tope final Z-MIN y se utiliza para la referenciación Z.
+ * (Habilita automáticamente USE_PROBE_FOR_Z_HOMING.)
  */
 //#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
@@ -1846,6 +1857,7 @@
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
 #if ENABLED(EEPROM_SETTINGS)
   //#define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
+  //#define EEPROM_INIT_NOW   // Init EEPROM on first boot after a new build.
 #endif
 
 //
@@ -2787,23 +2799,11 @@
 //
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
-//#define DWIN_CREALITY_LCD
-
-//
-// Ender-3 v2 OEM display, enhanced.
-//
-//#define DWIN_CREALITY_LCD_ENHANCED
-
-//
-// Ender-3 v2 OEM display with enhancements by Jacob Myers
-//
-//#define DWIN_CREALITY_LCD_JYERSUI
-
-//
-// MarlinUI for Creality's DWIN display (and others)
-//
-//#define DWIN_MARLINUI_PORTRAIT
-//#define DWIN_MARLINUI_LANDSCAPE
+//#define DWIN_CREALITY_LCD           // Creality UI
+//#define DWIN_CREALITY_LCD_ENHANCED  // Enhanced UI
+//#define DWIN_CREALITY_LCD_JYERSUI   // Jyers UI by Jacob Myers
+//#define DWIN_MARLINUI_PORTRAIT      // MarlinUI (portrait orientation)
+//#define DWIN_MARLINUI_LANDSCAPE     // MarlinUI (landscape orientation)
 
 //
 // Touch Screen Settings
@@ -2855,7 +2855,7 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
@@ -2922,7 +2922,7 @@
 //#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-  #define NEOPIXEL_PIN     4     // LED driving pin
+  //#define NEOPIXEL_PIN     4     // LED driving pin
   //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
   //#define NEOPIXEL2_PIN    5
   #define NEOPIXEL_PIXELS 30       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
